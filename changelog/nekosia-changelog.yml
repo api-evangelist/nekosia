@@ -1,0 +1,226 @@
+generated: '2026-08-19'
+method: searched
+source: >-
+  https://nekosia.cat/documentation?page=changelog — captured verbatim from the provider's own
+  documentation repository at
+  https://raw.githubusercontent.com/Nekosia-API/documentation/main/changelog.md
+checked: '2026-08-19'
+summary: >-
+  Nekosia publishes a real, dated, human-written changelog covering four separately-versioned
+  components, labelled inline: [WWW] the website/backend, [API] the REST API, [CDN] the image CDN
+  and [CRON] the background jobs. Entries are newest-first and semantic-versioned. This is
+  genuinely better than most providers this size ship, and it is machine-readable at the raw
+  markdown URL above even though the rendered page sits behind a Cloudflare bot challenge.
+scheme:
+  versioning: semver-2.0.0
+  api_versioning: path-segment (/api/v1)
+  build_metadata: >-
+    Component versions carry a pre-release and build stamp, e.g. v1.4.10-rc.1+20260802 — the build
+    metadata is the release date as YYYYMMDD, which is what makes the entries datable.
+  components: [WWW, API, CDN, CRON]
+  source: https://nekosia.cat/documentation?page=introduction#semver
+current_version:
+  api: v1
+  api_released: '2024-07-29'
+  api_last_component_release: v1.2.6-rc.1+20260402
+  www: v1.4.10-rc.1+20260802
+  cdn: v2.3.0-rc.1+20260414
+  cron: v2.4.3-rc.1+20260402
+  note: >-
+    The API surface itself is versioned only as `v1` in the path; the v1.2.6 figure is the internal
+    [API] component version from the changelog, not something a consumer can pin or request.
+feeds:
+  rss: null
+  atom: null
+  json: null
+  machine_readable_alternative: https://raw.githubusercontent.com/Nekosia-API/documentation/main/changelog.md
+  note: >-
+    No feed is published. The GitHub-hosted markdown source is the practical machine-readable
+    substitute and it carries commit history, which is a better change trail than an RSS feed.
+completeness_caveat: >-
+  Stated by the provider: "Not all changes are documented here; we record only the most significant
+  ones that may affect how the Service or API is used."
+entries:
+  - version: v1.4.10-rc.1+20260802
+    component: WWW
+    date: '2026-08-02'
+    breaking: false
+    highlights: [Backend optimised.]
+  - version: v1.4.9-rc.1+20260728
+    component: WWW
+    date: '2026-07-28'
+    breaking: false
+    highlights:
+      - Added support for uploading images from DeviantArt (admin panel).
+      - Code cleanup and other fixes.
+  - version: v1.4.8-rc.1+20260726
+    component: WWW
+    date: '2026-07-26'
+    breaking: false
+    highlights:
+      - Major SEO fixes and improvements.
+      - Improved the documentation section frontend and backend.
+      - Dependencies updated.
+  - version: v1.4.7-rc.1+20260716
+    component: WWW
+    date: '2026-07-16'
+    breaking: false
+    highlights:
+      - Optimised HTTP server clustering.
+      - Moved WebSocket server clustering into a separate process.
+      - Backend/frontend consistency and optimisation work.
+  - version: v1.4.6-rc.1+20260713
+    component: WWW
+    date: '2026-07-13'
+    breaking: false
+    highlights: [Documentation rendering improvements and optimisations.]
+  - version: v1.4.5-rc.1+20260617
+    component: WWW
+    date: '2026-06-17'
+    breaking: false
+    highlights:
+      - Added password reset by email from the login page.
+      - Security improvements and backend optimisations.
+  - version: v1.4.4-rc.1+20260601
+    component: WWW
+    date: '2026-06-01'
+    breaking: false
+    additions:
+      - Images can now carry multiple character names (comma-separated).
+    highlights:
+      - >-
+        The `anime.character` field was migrated to `anime.characters` (array) IN THE DATABASE.
+        API v1 remains backward-compatible — `character` is still returned as a string. The
+        provider flags that a future API v2, if it happens, may return this field as a native array.
+    forward_compatibility_note: >-
+      The single most useful entry in this changelog for an integrator: it names, in advance, the
+      one field whose type is expected to change at the next major version. Clients should not
+      assume `anime.character` stays a string forever.
+  - version: v1.4.3-rc.1+20260510
+    component: WWW
+    date: '2026-05-10'
+    breaking: false
+    highlights: [Fixed known issues with OAuth2 for X (website login only).]
+  - version: v1.4.2-rc.1+20260422
+    component: WWW
+    date: '2026-04-22'
+    breaking: false
+    highlights:
+      - Improved cookies policy, privacy policy, ToS and endpoint descriptions.
+      - Documented the `session` and `id` parameters for /images/:category and clarified `count`.
+  - version: v1.4.1-rc.1+20260421
+    component: WWW
+    date: '2026-04-21'
+    breaking: false
+    highlights: [Booru SEO, layout fixes, live homepage statistics over WebSocket.]
+  - version: v1.4.0-rc.1+20260414
+    component: WWW
+    date: '2026-04-14'
+    breaking: false
+    highlights:
+      - Removed the comments feature from Nekosia Booru.
+      - Added the Contributor role, awarded when a modification request is accepted.
+  - version: v2.3.0-rc.1+20260414
+    component: CDN
+    date: '2026-04-14'
+    breaking: false
+    highlights: [Performance and reliability improvements.]
+  - version: v1.3.2-rc.1+20260407
+    component: WWW
+    date: '2026-04-07'
+    breaking: false
+    highlights:
+      - Newsletter system in the admin panel.
+      - Dedicated unsubscribe page with RFC 8058 one-click unsubscribe.
+  - version: v1.3.0-rc.1+20260402
+    component: WWW
+    date: '2026-04-02'
+    breaking: false
+    highlights:
+      - Tag-based image search, filtering and artist search in Nekosia Booru.
+      - AI-powered image tagging (upload still admin-only).
+      - X (Twitter) login moved to OAuth2.
+      - Dedicated error pages instead of empty responses.
+  - version: v1.2.6-rc.1+20260402
+    component: API
+    date: '2026-04-02'
+    breaking: true
+    breaking_note: >-
+      Behaviour change for existing clients: an invalid `rating` value now returns 400 instead of
+      silently falling back to `safe`, and `/images/nothing` without `additionalTags` now returns a
+      descriptive 400. Callers that were relying on the silent fallback broke here. The provider
+      did not bump the API major version for this.
+    changes:
+      - '`rating` is now validated — an invalid value returns 400 instead of falling back to safe.'
+      - 'The `nothing` category without `additionalTags` returns a descriptive 400 rather than a generic no-results message.'
+      - '/tags now returns only tags from images with published: true (it previously leaked tags from unpublished images).'
+      - Removed a non-functional category blocking condition.
+  - version: v2.4.3-rc.1+20260402
+    component: CRON
+    date: '2026-04-02'
+    breaking: false
+    highlights: [Improved detection of similar images.]
+  - version: '2025-04-18'
+    component: API
+    date: '2025-04-18'
+    breaking: false
+    additions: ['Added the `random` category (covered by the safety filters by default).']
+  - version: '2025-03-20'
+    component: API
+    date: '2025-03-20'
+    breaking: false
+    additions: ['Added colour aliases for the `ribbon` category.']
+  - version: '2024-12-19'
+    component: API
+    date: '2024-12-19'
+    breaking: false
+    changes: ['Minimum length of the `id` session parameter lowered from 6 to 4 characters (valid range 4–128).']
+  - version: '2024-11-12'
+    component: API
+    date: '2024-11-12'
+    breaking: false
+    changes: ['Updated /api/v1/tags.']
+  - version: '2024-11-06'
+    component: API
+    date: '2024-11-06'
+    breaking: true
+    breaking_note: >-
+      Two response-field removals on the same day. The `identifier` field was removed from responses;
+      an `images` field was added and then itself replaced by `count`. `shadow` was renamed to
+      `nothing`. Clients written before this date against `identifier`, `images` or `shadow` do not
+      work today.
+    changes:
+      - 'Removed the `identifier` field from API responses.'
+      - 'Added an `images` field, then replaced it with `count`.'
+      - 'Renamed the `shadow` category to `nothing` (same purpose).'
+  - version: '2024-10-04'
+    component: API
+    date: '2024-10-04'
+    breaking: false
+    additions: ['Added /api/v1/tags.']
+  - version: '2024-09-07'
+    component: API
+    date: '2024-09-07'
+    breaking: false
+    additions: ['Added the `rating` parameter to /images; default is `safe` in every response.']
+  - version: '2024-08-19'
+    component: WWW
+    date: '2024-08-19'
+    breaking: false
+    highlights: ['Released the official nekosia.js npm module; created the Terms of Service document.']
+entry_count: 25
+window: '2024-08-19 to 2026-08-02'
+undated_entries_note: >-
+  The changelog carries a further ~18 [WWW] and [CDN] entries below a divider marked "The following
+  entries have no recorded release date." They are not reproduced here because they cannot be
+  placed on a timeline; they are visible in the source document.
+observations:
+  api_change_cadence: >-
+    The [API] component has shipped 8 recorded changes in two years, the most recent on 2026-04-02.
+    The API surface is stable to the point of being static; almost all development activity is on
+    the website and Booru, not the API.
+  breaking_changes_without_a_major_bump: >-
+    Two of the eight [API] entries (2024-11-06 and 2026-04-02) changed observable behaviour for
+    existing clients while the path version stayed at v1. The provider documents semver carefully
+    in its introduction, but has not applied the MAJOR rule to the API path. Treat `v1` as a
+    moving target and read the changelog rather than trusting the version segment.

@@ -1,0 +1,144 @@
+generated: '2026-08-19'
+method: probed
+source: >-
+  Live probes of api.nekosia.cat / nekosia.cat / cdn.nekosia.cat on 2026-08-19 plus the provider's
+  published documentation at https://github.com/Nekosia-API/documentation
+checked: '2026-08-19'
+summary: >-
+  Nekosia publishes no compliance program, no certifications and no trust center — it is a free,
+  hobby-scale image API run by an individual, and there is nothing here to certify. What it DOES
+  conform to is a short list of web and HTTP standards, several of which it implements better than
+  much larger providers: RFC 9116 security.txt on every host, the IETF RateLimit header fields, a
+  full modern security-header set, HSTS preload, DNSSEC and DMARC p=reject. No `Compliance` pointer
+  is emitted — there is no certification, audit report or regulatory program to point at.
+standards:
+  - id: rest
+    conforms: true
+    evidence: >-
+      Resource-oriented GET endpoints over HTTPS returning application/json, described as RESTful in
+      the provider's own introduction. Read-only; no write verbs exist.
+  - id: openapi
+    conforms: false
+    evidence: >-
+      No OpenAPI or Swagger document is published. Probed /openapi.json, /openapi.yaml,
+      /swagger.json, /api-docs, /docs, /redoc, /spec and /api/v1/openapi.json on api.nekosia.cat
+      (all 404, except /openapi.yaml which the Cloudflare edge answered 403) and the same paths on
+      nekosia.cat. The API is documented in prose markdown only.
+  - id: asyncapi
+    conforms: false
+    evidence: No event, webhook or streaming surface is offered to consumers, so there is nothing to describe.
+  - id: graphql
+    conforms: false
+    evidence: /graphql returns 404 on api.nekosia.cat.
+  - id: mcp
+    conforms: false
+    evidence: >-
+      No hosted MCP server. /mcp 404s on both api.nekosia.cat and nekosia.cat; no MCP package is
+      published under the Nekosia-API npm scope or GitHub org.
+  - id: a2a
+    conforms: false
+    evidence: /.well-known/agent-card.json and /.well-known/agent.json return 404 on all three hosts.
+  - id: rfc9116-security-txt
+    conforms: true
+    evidence: >-
+      A valid security.txt is served at /.well-known/security.txt on nekosia.cat, api.nekosia.cat
+      AND cdn.nekosia.cat (200, text/plain), carrying Canonical, Contact, Expires, Policy and
+      Preferred-Languages. Required fields (Contact, Expires) are present.
+    caveat: >-
+      Expires is set to 2030-12-10, well beyond the "less than a year" the RFC recommends, and
+      Policy points at the privacy policy rather than a dedicated disclosure page.
+    verification: probed
+  - id: ietf-ratelimit-headers
+    conforms: true
+    evidence: >-
+      Live responses carry `ratelimit: limit=300, remaining=274, reset=111` and
+      `ratelimit-policy: 300;w=300` — the standards-track draft-ietf-httpapi-ratelimit-headers
+      fields in combined form, not the ad-hoc X-RateLimit-* family. Observed on
+      GET https://api.nekosia.cat/api/v1/tags.
+    verification: probed
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: >-
+      Errors are application/json with a provider-specific {success,status,message} envelope. No
+      application/problem+json, no type URI, no machine error code. See
+      errors/nekosia-problem-types.yml.
+    verification: probed
+  - id: rfc8594-sunset-header
+    conforms: false
+    evidence: No Sunset or Deprecation headers observed and no deprecation policy published.
+  - id: semver-2.0.0
+    conforms: partial
+    evidence: >-
+      The provider documents semantic versioning 2.0.0 with worked examples and stamps every
+      component release accordingly (e.g. v1.4.10-rc.1+20260802). But two [API] releases changed
+      observable client behaviour without a MAJOR bump while the path stayed /v1 — policy
+      documented, not consistently applied. See changelog/nekosia-changelog.yml.
+  - id: cors
+    conforms: true
+    evidence: '`access-control-allow-origin: *` observed on live API responses; browser clients need no proxy.'
+    verification: probed
+  - id: hsts-preload
+    conforms: true
+    evidence: '`strict-transport-security: max-age=31536000; includeSubDomains; preload` on api.nekosia.cat and nekosia.cat.'
+    verification: probed
+  - id: tls-1.3
+    conforms: true
+    evidence: TLSv1.3 negotiated on nekosia.cat and api.nekosia.cat; certificates valid to 2026-11-06.
+    verification: probed
+  - id: dnssec
+    conforms: true
+    evidence: DNSSEC enabled on nekosia.cat.
+    verification: probed
+  - id: caa
+    conforms: false
+    evidence: No CAA records published for nekosia.cat.
+    verification: probed
+  - id: spf
+    conforms: true
+    evidence: SPF record present for nekosia.cat.
+    verification: probed
+  - id: dmarc
+    conforms: true
+    evidence: DMARC present with policy p=reject — the strictest setting, and stricter than most commercial API providers publish.
+    verification: probed
+  - id: rfc8058-one-click-unsubscribe
+    conforms: true
+    evidence: >-
+      The 2026-04-07 release notes add "a dedicated unsubscribe page with one-click unsubscribe
+      support (RFC 8058)" for the newsletter. Provider claim from the changelog; applies to email,
+      not the API.
+    verification: claim-only
+  - id: gdpr
+    conforms: unknown
+    evidence: >-
+      A privacy policy and a cookies policy are published and the service is operated from Poland
+      (documentation is bilingual pl/en), so GDPR applies, but no DPA, no data-processing terms and
+      no compliance statement are offered. The API itself collects IP addresses for sessions and
+      rate limiting.
+    verification: not-claimed
+certifications:
+  published: []
+  note: >-
+    No SOC 2, ISO 27001, PCI, HIPAA or FedRAMP claim appears anywhere on the site, and no trust
+    center exists (probe recorded in security/). This is the expected and honest answer for a free
+    hobby API; no `Compliance` or `TrustCenter` pointer is emitted.
+content_policy:
+  ratings: [safe, suggestive]
+  default: safe
+  nsfw: excluded
+  note: >-
+    The nearest thing to a compliance regime this provider operates is its own content policy:
+    images are classified safe or suggestive, suggestive is never returned unless explicitly
+    requested via `rating=suggestive`, and the provider states no NSFW material is served at all.
+    Category filters additionally constrain results, and the `nothing` category exists to bypass
+    those filters — at which point the provider explicitly transfers responsibility for content
+    appropriateness to the caller.
+  source: https://nekosia.cat/documentation?page=introduction#content-ratings
+copyright_regime:
+  dmca_process_published: true
+  source: https://nekosia.cat/documentation?page=tos#api-dmca
+  artist_attribution_required: true
+  note: >-
+    Images are third-party artwork surfaced with source and artist metadata; the terms require
+    artist attribution on republication and publish a DMCA path. Relevant to any consumer
+    redistributing these images.

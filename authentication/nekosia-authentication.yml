@@ -1,0 +1,63 @@
+generated: '2026-08-19'
+method: searched
+source: >-
+  https://nekosia.cat/documentation?page=introduction ("No API Key Required" section) and
+  https://nekosia.cat/documentation?page=getting-started, verified by live unauthenticated calls to
+  https://api.nekosia.cat/api/v1/* on 2026-08-19 which returned 200 with no credential of any kind.
+docs: https://nekosia.cat/documentation?page=introduction
+checked: '2026-08-19'
+summary:
+  types: [none]
+  api_key_in: []
+  oauth2_flows: []
+  authentication_required: false
+  registration_required: false
+schemes:
+  - name: none
+    type: none
+    description: >-
+      The Nekosia REST API requires no authorization key, token, header or account. The provider
+      states this as a deliberate product decision: "The API does not require authorization keys or
+      tokens, so you don't need to register to use it. This increases accessibility and
+      convenience." Verified — GET https://api.nekosia.cat/api/v1/images/catgirl returns 200 with a
+      full image payload on a bare request carrying no credentials.
+    sources:
+      - https://nekosia.cat/documentation?page=introduction
+      - live probe 2026-08-19
+documented: true
+documented_note: >-
+  This is a documented authentication MODEL, not a missing one. The provider names the model, says
+  why, and the docs' getting-started flow is a credential-free curl. That is the thing the
+  `authentication_documented` check exists to reward — a consumer knows exactly what to send.
+identity_and_quota:
+  identity_unit: client IP address
+  note: >-
+    With no key there is no caller identity, so everything that would normally attach to a key
+    attaches to the source IP instead: the 300-requests-per-5-minutes budget, abuse blocking, and
+    IP-keyed sessions. There is no mechanism to identify yourself for a higher allowance.
+  consequence_for_agents: >-
+    Agents running from shared or serverless egress share one rate-limit budget and one IP-keyed
+    session window with every other caller on that address. Use `session=id` with a per-end-user
+    identifier rather than `session=ip`.
+  see: rate-limits/nekosia-rate-limits.yml
+website_authentication:
+  applies_to: nekosia.cat / Nekosia Booru accounts — NOT the API
+  mechanisms:
+    - password login with email-based password reset (added 2026-06-17)
+    - social login including X (Twitter) via OAuth2 (moved to OAuth2 on 2026-04-02, fixed 2026-05-10)
+  note: >-
+    The website has accounts, roles and OAuth2 social login for the Booru. None of it grants or
+    affects API access, and no OAuth authorization-server metadata is published
+    (/.well-known/oauth-authorization-server 404s on every host). Recorded so a later round does
+    not mistake the site login for an API auth surface.
+  source: https://nekosia.cat/documentation?page=changelog
+scopes:
+  applicable: false
+  note: >-
+    No OAuth on the API surface, therefore no scope model and no scopes/ artifact. The
+    derive-oauth-scopes step is not applicable to this provider.
+transport_security:
+  https_required: true
+  hsts: 'max-age=31536000; includeSubDomains; preload'
+  tls_version_observed: TLSv1.3
+  see: security/nekosia-domain-security.yml

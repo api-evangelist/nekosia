@@ -1,0 +1,48 @@
+generated: '2026-08-19'
+method: searched
+status: none
+source: >-
+  Searches of the provider's documentation (https://github.com/Nekosia-API/documentation, all 12
+  documents), its GitHub organization (https://github.com/Nekosia-API, 5 public repos), the npm
+  registry, and live probes of candidate endpoints on 2026-08-19.
+checked: '2026-08-19'
+summary: >-
+  Nekosia ships NO Model Context Protocol server — not hosted, not local, not community. This file
+  records a searched ABSENCE. No `MCPServer` pointer is emitted in apis.yml and none should be
+  added by a later round: a pointer would assert an agent surface this provider does not have.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: none
+  verified: probed
+probes:
+  - url: https://api.nekosia.cat/mcp
+    status: 404
+  - url: https://api.nekosia.cat/api/v1/mcp
+    status: 404
+  - url: https://nekosia.cat/mcp
+    status: 404
+  - url: https://nekosia.cat/llms.txt
+    status: 404
+registry_search:
+  npm: No package under a Nekosia-owned scope or name providing an MCP server; the only official npm package is nekosia.js, a plain REST wrapper.
+  github: No MCP repository in the Nekosia-API organization (documentation, nekosia.js, .github, Anime-Ayomi-Bot, nekosia-api-cdn-test).
+tools: []
+tools_note: >-
+  No candidate tool list is derived. The pipeline derives candidates from an OpenAPI, and this
+  provider publishes no OpenAPI — see conformance/nekosia-conformance.yml. Inventing tool
+  definitions from prose documentation would produce an artifact indistinguishable from a real
+  one, which is exactly the failure this field exists to avoid.
+tool_crosswalk:
+  applicable: false
+  reason: >-
+    A crosswalk binds MCP tools (or GraphQL fields) to backing OpenAPI operationIds. This provider
+    has none of the three, so there is nothing to bind. No mcp/nekosia-tool-crosswalk.yml is written.
+agent_accessibility_note: >-
+  Worth stating plainly, because the absence of an MCP server understates how usable this API is by
+  an agent: it is keyless, CORS-open, GET-only, returns JSON, and its whole controlled vocabulary is
+  fetchable from one endpoint. An agent can call it today with a plain HTTP tool and no credential
+  negotiation at all. What is missing is the machine-readable DESCRIPTION of that surface — an
+  OpenAPI or an MCP manifest — not the accessibility of it.

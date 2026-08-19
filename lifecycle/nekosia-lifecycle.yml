@@ -1,0 +1,119 @@
+generated: '2026-08-19'
+method: searched
+source: >-
+  https://status.nekosia.cat + https://nekosia.cat/documentation?page=introduction#semver +
+  https://nekosia.cat/documentation?page=changelog + https://nekosia.cat/documentation?page=tos
+checked: '2026-08-19'
+versioning:
+  scheme: path-segment + semver-2.0.0
+  current: v1
+  released: '2024-07-29'
+  only_version: true
+  policy_documented: true
+  policy_url: https://nekosia.cat/documentation?page=introduction#semver
+  notes: >-
+    The provider documents semantic versioning 2.0.0 explicitly, with worked examples of what
+    MAJOR/MINOR/PATCH mean for this API, and publishes a version table naming v1 as released
+    2024-07-29 and currently recommended. v1 is the only version that has ever existed.
+  policy_vs_practice_caveat: >-
+    The documented policy says a backward-incompatible change increments MAJOR. In practice two
+    [API] changelog entries (2024-11-06, 2026-04-02) changed observable client behaviour while the
+    path stayed v1 — response fields were removed and a previously-silent fallback became a 400.
+    See changelog/nekosia-changelog.yml. The version segment is therefore not a reliable stability
+    contract; the changelog is.
+changelog:
+  url: https://nekosia.cat/documentation?page=changelog
+  machine_readable_source: https://raw.githubusercontent.com/Nekosia-API/documentation/main/changelog.md
+  artifact: changelog/nekosia-changelog.yml
+  dated_entries: true
+  notes: >-
+    A real dated changelog covering four separately-versioned components. Unusually for a provider
+    this size, the source markdown is public on GitHub, so the change history is fetchable and
+    diffable without scraping.
+status_page:
+  url: https://status.nekosia.cat
+  probed:
+    - url: https://status.nekosia.cat/
+      status: 200
+      checked: '2026-08-19'
+  page_title: Nekosia API status
+  monitored_components:
+    - name: nekosia.cat
+      state_at_check: Operational
+      uptime_published: 99.970%
+  machine_readable_api: false
+  machine_readable_note: >-
+    The page renders per-day operational/downtime history and an aggregate uptime percentage, but
+    exposes no JSON summary endpoint (no /api/v2/summary.json), so component state is not
+    machine-readable. An agent can see the page; it cannot poll it cheaply.
+  incident_history_published: true
+  incident_history_note: >-
+    Daily state is published for a rolling window. Observed downtime days in the window read at
+    check time: 2026-05-30 (3 min), 2026-06-11 (4 min), 2026-06-20 (7 min), 2026-06-27 (5 min),
+    2026-07-01 (16 min). Short, infrequent outages against a published 99.970% uptime.
+  uptime_claim_source: >-
+    The introduction document states the API and website are monitored by an external system 24/7
+    and that users are informed in advance of planned maintenance.
+health_endpoint:
+  url: https://api.nekosia.cat/api/v1
+  status: 200
+  method: probed
+  checked: '2026-08-19'
+  body: '{"status":200,"success":true,"message":"Operational","release":1,"documentation":"https://nekosia.cat/documentation","example":"https://api.nekosia.cat/api/v1/images/catgirl"}'
+  note: >-
+    The API root doubles as an unauthenticated health check — it returns a `message` of
+    "Operational" plus a `release` counter and links to the docs. This is the cheapest liveness
+    probe available for this provider and it is machine-readable, unlike the status page.
+deprecation:
+  policy_documented: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  notes: >-
+    No deprecation or sunset policy is published, no RFC 8594 Sunset/Deprecation headers were
+    observed on live responses, and there is no removal timeline for anything. Fields have been
+    removed from responses in the past (`identifier`, `images`) with no deprecation window — they
+    appear in the changelog as already-done. No `Deprecation` pointer is emitted for this provider;
+    that check is a genuine zero, not a missing pointer.
+sla:
+  documented: false
+  notes: >-
+    No SLA. The Terms of Service offer the API as-is; the only availability commitment is the
+    monitoring statement in the introduction and the status page's published uptime figure.
+roadmap:
+  published: false
+  probed:
+    - url: https://nekosia.cat/roadmap
+      status: 404
+      checked: '2026-08-19'
+  notes: >-
+    No public roadmap. Forward-looking statements exist only inside changelog entries (e.g. the
+    note that a hypothetical API v2 may return `anime.characters` as a native array). No Roadmap
+    pointer is emitted.
+support:
+  email: support@nekosia.cat
+  discord: https://discord.gg/pba76vJhcP
+  issues: https://github.com/Nekosia-API/documentation/issues
+  notes: >-
+    The provider directs API questions to a Discord server and to email; the documentation repo on
+    GitHub also accepts issues. There is no ticketing system or paid support tier.
+terms:
+  url: https://nekosia.cat/documentation?page=tos
+  last_updated: '2026-06-01'
+  privacy_policy: https://nekosia.cat/documentation?page=privacy-policy
+  cookies_policy: https://nekosia.cat/documentation?page=cookies
+  definitions: https://nekosia.cat/documentation?page=definitions
+  notes: >-
+    Legal documents are versioned in the same public git repository as the API docs, so their
+    change history is auditable — better provenance than a silently-edited web page.
+open_source:
+  api_server: false
+  website: false
+  documentation: true
+  documentation_repo: https://github.com/Nekosia-API/documentation
+  sdk: true
+  sdk_repo: https://github.com/Nekosia-API/nekosia.js
+  statement: >-
+    "Currently, neither the website nor the API is available as open-source projects."
+  source: https://nekosia.cat/documentation?page=introduction#open-source

@@ -1,0 +1,201 @@
+generated: '2026-08-19'
+method: searched
+source: >-
+  https://nekosia.cat/documentation?page=endpoints + ?page=getting-started + ?page=ratelimits
+  (verbatim from https://github.com/Nekosia-API/documentation), corroborated by live
+  unauthenticated requests to https://api.nekosia.cat/api/v1/* on 2026-08-19.
+checked: '2026-08-19'
+summary: >-
+  Cross-cutting request/response semantics for the Nekosia REST API. It is a small, read-only,
+  keyless JSON API: three documented GET operations, no writes, no auth, no pagination, no
+  idempotency contract (and none needed), a consistent success/error envelope, and a session
+  mechanism that is unusual enough to be the main thing an integrator has to learn.
+interface:
+  style: rest
+  base_url: https://api.nekosia.cat/api/v1
+  transport: https
+  http_versions_observed: [h2, h3]
+  methods_used: [GET]
+  write_operations: false
+  media_type: application/json; charset=utf-8
+  cors:
+    enabled: true
+    header: 'access-control-allow-origin: *'
+    method: probed
+    note: >-
+      Fully open CORS, verified on a live response. Browser clients can call this API directly with
+      no proxy, which is exactly how the provider markets it ("CORS-free" in the web app manifest).
+authentication:
+  style: none
+  api_key_required: false
+  see: authentication/nekosia-authentication.yml
+envelope:
+  success_shape: '{ "success": true, "status": 200, ... }'
+  error_shape: '{ "success": false, "status": <int>, "message": <string>, ... }'
+  discriminator: success (boolean) — mirrored by an integer `status` field that repeats the HTTP status
+  note: >-
+    Every response, success or failure, carries both `success` and `status` in the body. The body
+    status has always matched the HTTP status on every response observed. Clients can branch on
+    either; branching on the HTTP status is the safer habit.
+  see: errors/nekosia-problem-types.yml
+pagination:
+  supported: false
+  style: null
+  note: >-
+    There is no pagination anywhere. /images/:category returns a batch of up to 20 via `count`,
+    /tags returns the complete tag/anime/character lists in a single ~10 KB document, and
+    /getImageById returns one record. The closest thing to a cursor is the session mechanism, which
+    prevents repeats rather than paging through a set.
+batching:
+  supported: true
+  parameter: count
+  default: 1
+  max: 20
+  note: >-
+    The provider warns that higher `count` values increase server response time. Requesting more
+    than 20 returns 400 "Count must be between 1 and 20." (verified live).
+filtering:
+  parameters:
+    - name: ':category'
+      in: path
+      required: true
+      note: >-
+        A tag with additional safety filters bound to it. The special category `nothing` disables
+        those filters and requires at least one `additionalTags` value.
+    - name: additionalTags
+      in: query
+      format: comma-separated tag slugs
+      note: Required when :category is `nothing`; otherwise narrows the result set.
+    - name: blacklistedTags
+      in: query
+      format: comma-separated tag slugs
+      note: Excludes images carrying any listed tag.
+    - name: rating
+      in: query
+      enum: [safe, suggestive]
+      default: safe
+      note: >-
+        Validated since 2026-04-02 — any other value returns 400. Before that date an invalid value
+        silently fell back to `safe`; clients written against the old behaviour now get errors.
+  vocabulary_source: https://api.nekosia.cat/api/v1/tags
+  vocabulary_note: >-
+    The tag vocabulary is itself an API endpoint, which makes the filter surface discoverable at
+    runtime rather than only from documentation.
+sessions:
+  supported: true
+  purpose: de-duplication of random results, not authentication or state
+  parameters:
+    - name: session
+      enum: [ip, id]
+      note: >-
+        `ip` keys the session on the caller's IP address; `id` keys it on a caller-supplied
+        identifier and is the provider's recommendation.
+    - name: id
+      constraints: 4–128 characters, no special characters from !@#$%^&*()_+{}|:"<>?
+      required_when: session=id
+      note: >-
+        Verified live — an identifier of 2 characters returns 400 "Invalid id parameter. Length
+        should be between 4 and 128 characters." with the offending length echoed back as `length`.
+  retention: 7 days, then automatically deleted
+  reset_behaviour: >-
+    When a user has seen every available image in a category the session for that category resets
+    automatically and random results resume.
+  agent_note: >-
+    This is the one piece of hidden state in an otherwise stateless API. An agent that omits
+    `session` will get duplicates across calls; an agent that passes `session=ip` from a shared
+    egress IP will share a de-duplication window with every other caller behind that IP. Pass
+    `session=id` with a stable per-end-user identifier.
+idempotency:
+  documented: false
+  header: null
+  supported: not-applicable
+  notes: >-
+    No idempotency-key mechanism is documented and none is needed: the API is read-only, exposes
+    only GET operations, and has no create/update/delete surface that could be double-applied by a
+    retry. GET /images/:category is deliberately NON-deterministic (it returns a random image), so
+    it is safe to retry but not repeatable — retrying returns a different image, and with a session
+    active it will specifically avoid returning the same one.
+  pointer_decision: >-
+    NO `Idempotency` pointer is emitted. The agent-readiness idempotency dimension is a true zero
+    here because there is no unsafe operation to protect, not because a pointer was forgotten.
+  agent_risk: none-material
+caching:
+  documented: false
+  observed_headers:
+    - name: etag
+      example: 'W/"28c9-A10TFKqpCirPQ6PNl2U06iIxUyk"'
+      surface: GET /tags
+      method: probed
+      note: >-
+        A weak ETag is emitted on /tags, so a client can revalidate the tag vocabulary with
+        If-None-Match instead of re-downloading it. This is the only endpoint where caching is
+        meaningful — the image endpoints are random by design.
+    - name: cf-cache-status
+      example: DYNAMIC
+      note: Cloudflare fronts the API but does not cache API responses.
+  no_cache_control: >-
+    No Cache-Control or max-age header was observed on any API response.
+request_tracing:
+  supported: partial
+  headers:
+    - name: cf-ray
+      example: a2d928dfdb6e4153-EWR
+      method: probed
+      note: >-
+        A Cloudflare edge request identifier, present on every response and the only per-request
+        correlation value available. It is an edge identifier, not an application request-id, so
+        support can use it to find the request at the CDN but the provider publishes no
+        application-level X-Request-Id.
+  application_request_id: false
+rate_limit_signaling:
+  headers: [ratelimit, ratelimit-policy]
+  standard: IETF draft-ietf-httpapi-ratelimit-headers (combined form)
+  status_on_exhaustion: 429
+  see: rate-limits/nekosia-rate-limits.yml
+  note: >-
+    Better than the norm at this scale: the API emits standards-track RateLimit fields on every
+    successful response rather than the ad-hoc X-RateLimit-* family, so a generic client can read
+    the budget without provider-specific code.
+versioning:
+  style: path-segment
+  current: v1
+  see: lifecycle/nekosia-lifecycle.yml
+security_headers:
+  method: probed
+  observed:
+    - 'strict-transport-security: max-age=31536000; includeSubDomains; preload'
+    - "content-security-policy: default-src 'self'; base-uri 'self'; frame-ancestors 'self'; object-src 'none' (…)"
+    - 'x-content-type-options: nosniff'
+    - 'x-frame-options: SAMEORIGIN'
+    - 'referrer-policy: same-origin'
+    - 'cross-origin-opener-policy: same-origin'
+    - 'origin-agent-cluster: ?1'
+    - 'x-dns-prefetch-control: off'
+    - 'x-permitted-cross-domain-policies: none'
+    - 'x-xss-protection: 1; mode=block'
+  note: >-
+    The full Helmet default header set is applied to API responses, including HSTS with preload.
+    Notable because it is a free hobby-scale API — the security posture is better than many
+    commercial ones. See security/nekosia-domain-security.yml.
+events:
+  webhooks: false
+  streaming: false
+  websocket_note: >-
+    A WebSocket is used by nekosia.cat for live homepage statistics (added in the 2026-04-21
+    website release and moved to a dedicated process on 2026-07-16), but it is a website feature,
+    not a documented public API surface. No AsyncAPI artifact and no Webhooks pointer are emitted —
+    there is genuinely no event surface for consumers.
+attribution_obligations:
+  artist_attribution_required: true
+  note: >-
+    A convention with legal weight rather than a technical one, and easy to miss: when publishing an
+    image obtained from the API you are REQUIRED to credit the artist where `attribution.artist` is
+    present in the response. Crediting Nekosia itself is optional. Every response carries the fields
+    needed to comply (`attribution.artist.username`, `.profile`, `.copyright`, `source.url`).
+  source: https://nekosia.cat/documentation?page=tos#api-artist-attribution
+cross_links:
+  errors: errors/nekosia-problem-types.yml
+  lifecycle: lifecycle/nekosia-lifecycle.yml
+  authentication: authentication/nekosia-authentication.yml
+  rate_limits: rate-limits/nekosia-rate-limits.yml
+  data_model: data-model/nekosia-data-model.yml

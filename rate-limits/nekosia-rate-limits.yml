@@ -1,0 +1,103 @@
+generated: '2026-08-19'
+method: probed
+source: >-
+  https://nekosia.cat/documentation?page=ratelimits (verbatim at
+  https://raw.githubusercontent.com/Nekosia-API/documentation/main/ratelimits.md), corroborated by
+  live unauthenticated response headers observed on https://api.nekosia.cat/api/v1/tags on 2026-08-19.
+checked: '2026-08-19'
+confidence: high
+confidence_note: >-
+  Both halves agree and both were captured directly: the numbers come from the provider's published
+  rate-limits page, and the runtime signal was read off a live 200 from the API host. The
+  documented 300-requests-per-5-minutes limit is exactly what the observed
+  `ratelimit-policy: 300;w=300` header declares.
+limit_count: 3
+scopes:
+  - scope: per-client-ip
+    surface: REST API (api.nekosia.cat)
+    window: 5 minutes
+    limit: 300
+    unit: requests
+    burst: null
+    status_on_exhaustion: 429
+    headers:
+      - name: ratelimit
+        example: 'limit=300, remaining=274, reset=111'
+        meaning: >-
+          IETF RateLimit header field (draft-ietf-httpapi-ratelimit-headers) in its combined form.
+          `limit` is the quota for the window, `remaining` the requests still available, `reset` the
+          seconds until the window rolls over. This is the runtime signal an agent should read; it
+          is returned on every successful response.
+        observed: true
+      - name: ratelimit-policy
+        example: '300;w=300'
+        meaning: 300 requests per 300-second (5 minute) window. Declares the policy independently of current state.
+        observed: true
+    retry_after: null
+    retry_after_note: >-
+      No Retry-After header was observed on a 200 and none is documented. The `reset` value inside
+      the `ratelimit` header carries the same information (seconds until the window resets) and is
+      what a client should back off on.
+    source: https://nekosia.cat/documentation?page=ratelimits
+    observed_on: https://api.nekosia.cat/api/v1/tags
+  - scope: per-client-ip
+    surface: Website + documentation (nekosia.cat)
+    window: 140 seconds
+    limit: 96
+    unit: requests
+    burst: null
+    status_on_exhaustion: 429
+    headers: []
+    headers_note: >-
+      Not verified on a live response — nekosia.cat is behind a Cloudflare bot challenge that
+      answers a default user-agent with a 403 interstitial before any origin rate-limit header is
+      emitted. Documented value only.
+    source: https://nekosia.cat/documentation?page=ratelimits
+  - scope: per-client-ip
+    surface: Image CDN (cdn.nekosia.cat)
+    window: 5 minutes
+    limit: 600
+    unit: requests
+    burst: null
+    status_on_exhaustion: 429
+    headers: []
+    source: https://nekosia.cat/documentation?page=ratelimits
+    note: >-
+      Matters more than it looks: every API response points image URLs at cdn.nekosia.cat, so a
+      client that fetches the picture for every API result consumes two budgets at once. At the
+      documented ceilings a client can make 300 API calls but 600 CDN fetches per 5 minutes.
+edge_limits:
+  provider: Cloudflare
+  documented: true
+  note: >-
+    The provider states Cloudflare may apply its own limits on top of the origin limits above, also
+    surfacing as a 429. Confirmed at the header level — `server: cloudflare` and a `cf-ray` are
+    present on every API response.
+  source: https://nekosia.cat/documentation?page=ratelimits
+enforcement:
+  status_code: 429
+  response_note: >-
+    Exceeding the limits temporarily blocks the originating user or server "from a few minutes to a
+    few hours, depending on the severity of the limit violation". Repeated violation may be treated
+    as an overload/DDoS attempt and result in a permanent block.
+  reporting: >-
+    The provider states that abuse incidents are reported to AbuseIPDB (abuseipdb.com) and SniffCat
+    (sniffcat.com). This is unusual and worth flagging to any agent operator: sustained retry storms
+    against this API can put the caller's IP in public abuse databases.
+  source: https://nekosia.cat/documentation?page=ratelimits
+per_request_limits:
+  - parameter: count
+    surface: GET /images/:category
+    max: 20
+    default: 1
+    status_on_violation: 400
+    observed_message: 'Count must be between 1 and 20.'
+    note: >-
+      A per-request cap rather than a rate limit, but it is the effective throughput ceiling: at
+      most 20 images per call, 300 calls per 5 minutes. Verified live on 2026-08-19 by requesting
+      count=50.
+authentication_note: >-
+  There is no API key, so every limit above is enforced per client IP address. A serverless or
+  shared-egress deployment shares one budget across all its callers, and there is no way to raise
+  the ceiling by identifying yourself.
+contact: support@nekosia.cat

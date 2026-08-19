@@ -1,13 +1,37 @@
+aid: nekosia
 name: Nekosia API
-description: >-
-  Nekosia is a free, keyless anime-image REST API serving cute anime 'neko' (catgirl) imagery and related metadata,
-  backed by the provider's own Booru. Responses are JSON with rich metadata including dominant colors, image variants,
-  dimensions, tags, ratings, and source attribution.
-url: https://nekosia-api.apievangelist.com/apis.yml
+description: Nekosia is a free, keyless anime-image REST API serving cute anime "neko" (catgirl) imagery
+  and related metadata, backed by the provider's own Booru. Three documented GET operations return JSON
+  carrying dominant colours, original and compressed image variants, dimensions, tags, content ratings,
+  anime and character names, the original source and full artist attribution. No API key, no registration
+  and no account are required; rate limits are enforced per IP address and reported through standards-track
+  RateLimit response headers. Standard public use is free, but commercial use requires prior written consent
+  from the operator.
+image: https://nekosia.cat/images/og-preview.gif
+url: https://raw.githubusercontent.com/api-evangelist/nekosia/refs/heads/main/apis.yml
 created: '2026-08-19'
 modified: '2026-08-19'
 specificationVersion: '0.21'
 tags:
+- anime
+- neko
+- api
+- nekos
+- neko api
+- booru
+- image
+- media
+- entertainment
+- images
+- free api
+- open access
+apis:
+- name: Nekosia REST API
+  description: Free keyless RESTful JSON API serving random anime/neko images across many categories with
+    rich metadata, a tags endpoint, session mechanism, and content ratings.
+  humanURL: https://nekosia.cat/documentation?page=introduction
+  baseURL: https://api.nekosia.cat/api/v1
+  tags:
   - anime
   - neko
   - api
@@ -17,31 +41,125 @@ tags:
   - image
   - media
   - entertainment
-apis:
-  - name: Nekosia REST API
-    description: >-
-      Free keyless RESTful JSON API serving random anime/neko images across many categories with rich metadata, a tags
-      endpoint, session mechanism, and content ratings.
-    humanURL: https://nekosia.cat/documentation?page=introduction
-    baseURL: https://api.nekosia.cat/api/v1
-    tags:
-      - anime
-      - neko
-      - api
-      - nekos
-      - neko api
-      - booru
-      - image
-      - media
-      - entertainment
-    properties:
-      - type: Documentation
-        url: https://nekosia.cat/documentation?page=introduction
+  properties:
+  - type: Documentation
+    url: https://nekosia.cat/documentation?page=introduction
 maintainers:
-  - FN: Nekosia API
-    url: https://nekosia.cat/
+- FN: Nekosia API
+  email: support@nekosia.cat
+  url: https://nekosia.cat/
 generated:
   by: apis.io/add
   model: claude-opus-4-8
   confidence: 90
   at: '2026-08-19T02:43:46.970Z'
+common:
+- type: VulnerabilityDisclosure
+  url: security/nekosia-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/nekosia-domain-security.yml
+- type: Security
+  url: security/nekosia-vulnerability-disclosure.yml
+- type: Website
+  url: https://nekosia.cat/
+- type: DeveloperPortal
+  url: https://nekosia.cat/documentation
+- type: Documentation
+  url: https://nekosia.cat/documentation?page=introduction
+- type: APIReference
+  url: https://nekosia.cat/documentation?page=endpoints
+- type: GettingStarted
+  url: https://nekosia.cat/documentation?page=getting-started
+- type: Support
+  url: https://discord.gg/pba76vJhcP
+- type: GitHubOrganization
+  url: https://github.com/Nekosia-API
+- type: Login
+  url: https://nekosia.cat/login
+- type: TermsOfService
+  url: https://nekosia.cat/documentation?page=tos
+- type: PrivacyPolicy
+  url: https://nekosia.cat/documentation?page=privacy-policy
+- type: StatusPage
+  url: https://status.nekosia.cat
+- type: ChangeLog
+  url: https://nekosia.cat/documentation?page=changelog
+- type: ChangeLog
+  url: changelog/nekosia-changelog.yml
+- type: Lifecycle
+  url: lifecycle/nekosia-lifecycle.yml
+- type: Authentication
+  url: authentication/nekosia-authentication.yml
+- type: Conventions
+  url: conventions/nekosia-conventions.yml
+- type: Conformance
+  url: conformance/nekosia-conformance.yml
+- type: ErrorCatalog
+  url: errors/nekosia-problem-types.yml
+- type: DataModel
+  url: data-model/nekosia-data-model.yml
+- type: Examples
+  url: examples/_index.yml
+- type: Packages
+  url: packages/nekosia-packages.yml
+- type: SDKs
+  url: packages/nekosia-packages.yml
+- type: RateLimits
+  url: rate-limits/nekosia-rate-limits.yml
+- type: Plans
+  url: plans/nekosia-plans-pricing.yml
+- type: WellKnown
+  url: well-known/nekosia-well-known.yml
+- type: SecurityTxt
+  url: well-known/nekosia-security.txt
+- type: LLMsTxt
+  url: llms/nekosia-llms.txt
+- type: GitHubRepository
+  url: https://github.com/Nekosia-API/documentation
+- type: X-Documentation-Source
+  url: https://raw.githubusercontent.com/Nekosia-API/documentation/main/endpoints.md
+x-enrichment:
+  date: '2026-08-19'
+  status: enriched
+  artifacts_added: 24
+  pass: local-v1
+x-no-contract:
+  openapi: false
+  asyncapi: false
+  graphql: false
+  mcp: false
+  agent_card: false
+  detail: 'STEP 0b contract discovery ran in full against api.nekosia.cat, nekosia.cat and cdn.nekosia.cat
+    and found no machine-readable contract of any kind. Probed and recorded: /openapi.json, /openapi.yaml,
+    /swagger.json, /api-docs, /docs, /redoc, /rapidoc, /spec, /api/v1/openapi.json (404 on the API host;
+    the edge returned 403 for /openapi.yaml on nekosia.cat), /graphql (404), /mcp and /api/v1/mcp (404),
+    /llms.txt (404), and /.well-known/agent-card.json plus the legacy /.well-known/agent.json on all three
+    hosts (404). The API is real, live and well documented — the description of it is human-readable prose
+    only. See conformance/nekosia-conformance.yml.'
+  checked: '2026-08-19'
+x-evidence:
+  round: '2026-08-19'
+  admitted_from: Add-API gate auto-publish 2026-08-19 02:46 UTC, confidence 90.
+  renamed: nekosia-api -> nekosia, domain-derived slug (nekosia.cat). Renamed BEFORE enrichment so artifacts
+    were written with the correct names. Never published under the old slug.
+  the_split_surface:
+    finding: The API host is wide open. The website host blocks machines outright.
+    api.nekosia.cat: 'root 200, invented path 404 — discriminates. Keyless: a live unauthenticated GET
+      /api/v1/images/catgirl returned 200 with a full payload on 2026-08-19.'
+    nekosia.cat: 403 on EVERY path, identical 4,572b Cloudflare "Attention Required! ... you have been
+      blocked". This is a WAF block, not a JS challenge.
+    consequence: Eight wired pointers resolve to nekosia.cat/documentation?page=... and every one of them
+      returns 403 to any non-browser client. They are kept because they are the provider's real canonical
+      URLs and a human browser reads them fine — but no agent, SDK or crawler can. Recorded so the pointer
+      set is not mistaken for machine-reachable.
+    verified_reachable: status.nekosia.cat 200, discord.gg invite 200, github.com/Nekosia-API 200.
+  documentation_is_readable_after_all: The docs are NOT machine-unreachable, they are just not readable
+    at nekosia.cat. The source of truth is a public GitHub repo — Nekosia-API/documentation, pushed 2026-08-03
+    — and raw.githubusercontent.com/Nekosia-API/documentation/main/endpoints.md returns 200 text/plain
+    9,421b. Wired as X-Documentation-Source so the machine-readable path is recorded alongside the blocked
+    canonical one.
+  no_openapi: No OpenAPI, on either host or in the GitHub org. The pipeline deliberately did NOT derive
+    one — there is no openapi/ directory in this repo. The data-model artifact reconstructs the response
+    shape from the provider's own published schema and states in its own derivation_note that every field
+    was observed on the wire. That is ours, labelled as ours, and not recorded as a contract they publish.
+  also_ships: An official JavaScript SDK, Nekosia-API/nekosia.js, pushed 2026-08-06.

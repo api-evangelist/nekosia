@@ -1,0 +1,118 @@
+generated: '2026-08-19'
+method: probed
+format: custom-json
+source: >-
+  Live unauthenticated probes of https://api.nekosia.cat/api/v1/* on 2026-08-19, each error
+  triggered deliberately, plus the error-handling section of
+  https://nekosia.cat/documentation?page=getting-started.
+checked: '2026-08-19'
+rfc9457: false
+rfc9457_note: >-
+  The API does not implement RFC 9457 problem+json. Errors are returned as application/json using a
+  provider-specific envelope. There is no `type` URI, no `title`, no `instance`, and no machine
+  error CODE of any kind — the only machine-readable discriminators are `success: false` and the
+  integer `status`. Everything else that distinguishes one failure from another is prose in
+  `message`.
+envelope:
+  media_type: application/json; charset=utf-8
+  shape: '{ "success": false, "status": <int>, "message": <string>, ...contextual fields }'
+  fields:
+    - {name: success, type: boolean, required: true, description: 'Always false on an error; true on success.'}
+    - {name: status, type: integer, required: true, description: 'Repeats the HTTP status code in the body.'}
+    - {name: message, type: string, required: true, description: 'Human-readable explanation. The ONLY thing that distinguishes one 400 from another.'}
+    - {name: example, type: string, required: false, description: 'A working example URL, returned on some 400s.'}
+    - {name: docs, type: string, required: false, description: 'Documentation URL, returned on 404 Not found.'}
+    - {name: length, type: integer, required: false, description: 'Returned on the session id length error — echoes the rejected length.'}
+  http_status_matches_body: true
+  http_status_note: Verified on every probe below — the HTTP status and the body `status` agreed each time.
+agent_guidance: >-
+  An agent cannot branch on an error code here because there is not one. Every client-side failure
+  in this API is HTTP 400 regardless of cause — an unknown category, an invalid rating, a missing
+  required tag, a bad image id and an out-of-range count all return 400 with different prose. The
+  only stable discriminators are (a) the HTTP status and (b) substring matching on `message`, which
+  is brittle. The practical consequence: validate inputs client-side against
+  https://api.nekosia.cat/api/v1/tags and the documented enums BEFORE calling, rather than trying
+  to classify failures afterwards.
+problems:
+  - status: 400
+    title: No matching images
+    trigger: 'Unknown or misspelled :category, or a filter combination that matches nothing.'
+    probe: GET /api/v1/images/catgirl-test
+    observed_body: '{"success":false,"status":400,"message":"No images matching the specified criteria were found. See https://nekosia.cat/documentation?page=endpoints#tags-and-categories for more details.","example":"https://api.nekosia.cat/api/v1/images/catgirl"}'
+    remediation: >-
+      Check the category against GET /tags or the Booru tag list. Note this same error covers a
+      genuinely empty result from valid-but-over-narrow additionalTags/blacklistedTags — an unknown
+      category and a zero-result query are indistinguishable to the client.
+    method: probed
+  - status: 400
+    title: Invalid rating parameter
+    trigger: '`rating` set to anything other than safe or suggestive.'
+    probe: 'GET /api/v1/images/catgirl?rating=nsfw'
+    observed_body: '{"success":false,"status":400,"message":"Invalid \"rating\" parameter. Allowed values: safe, suggestive."}'
+    remediation: Use `safe` (default) or `suggestive`.
+    history_note: >-
+      New behaviour since the 2026-04-02 [API] release. Before that an invalid rating silently fell
+      back to `safe`, so older clients that sent junk here now break.
+    method: probed
+  - status: 400
+    title: Missing required tags for the `nothing` category
+    trigger: 'GET /images/nothing without at least one additionalTags value.'
+    probe: GET /api/v1/images/nothing
+    observed_body: '{"success":false,"status":400,"message":"The \"nothing\" category requires at least one tag in the \"additionalTags\" parameter."}'
+    remediation: 'Supply additionalTags, e.g. /images/nothing?additionalTags=cat-ears,fox-ears.'
+    method: probed
+  - status: 400
+    title: Image not found by identifier
+    trigger: 'getImageById with an identifier that does not exist OR is not a well-formed identifier.'
+    probes:
+      - request: GET /api/v1/getImageById/000000000000000000000000
+        observed_body: '{"success":false,"status":400,"message":"The image with the provided identifier was not found."}'
+      - request: GET /api/v1/getImageById/abc
+        observed_body: '{"success":false,"status":400,"message":"The image with the provided identifier was not found."}'
+    remediation: Use an `id` value taken from a prior /images response.
+    semantics_note: >-
+      Worth flagging: a missing resource returns 400, not 404, and a malformed identifier returns
+      the identical body to a well-formed-but-absent one. A client cannot tell "you sent garbage"
+      from "that image is gone".
+    method: probed
+  - status: 400
+    title: Count out of range
+    trigger: '`count` below 1 or above 20.'
+    probe: 'GET /api/v1/images/catgirl?count=50'
+    observed_body: '{"success":false,"status":400,"message":"Count must be between 1 and 20."}'
+    remediation: Request between 1 and 20 images per call.
+    method: probed
+  - status: 400
+    title: Invalid session identifier length
+    trigger: '`session=id` with an `id` shorter than 4 or longer than 128 characters.'
+    probe: 'GET /api/v1/images/catgirl?session=id&id=ab'
+    observed_body: '{"success":false,"status":400,"message":"Invalid id parameter. Length should be between 4 and 128 characters.","length":2}'
+    remediation: 'Use an identifier of 4–128 characters with no characters from !@#$%^&*()_+{}|:"<>?'
+    note: The only error observed that returns a structured contextual field (`length`).
+    method: probed
+  - status: 404
+    title: Not found
+    trigger: A path that is not a known endpoint.
+    probe: GET /api/v1/nope
+    observed_body: '{"success":false,"status":404,"message":"Not found","docs":"https://nekosia.cat/documentation"}'
+    remediation: Check the endpoint path against the documented surface.
+    method: probed
+  - status: 429
+    title: Too Many Requests
+    trigger: Exceeding the per-IP rate limits, or a Cloudflare edge limit.
+    observed: false
+    observed_note: >-
+      NOT probed. Deliberately not triggered — the provider states that exceeding limits results in
+      temporary blocking and that abuse is reported to AbuseIPDB and SniffCat. The status code is
+      documented; the response body shape at 429 is therefore unknown and is recorded as unverified
+      rather than assumed to match the envelope above.
+    remediation: >-
+      Read the `ratelimit` header on successful responses and back off before exhaustion; on a 429
+      wait for the window to reset.
+    source: https://nekosia.cat/documentation?page=ratelimits
+    method: searched
+statuses_observed: [200, 400, 404]
+statuses_documented_not_observed: [429]
+server_error_note: >-
+  No 5xx response was produced by any probe and none is documented. Absence of evidence only —
+  nothing here says the API cannot fail.

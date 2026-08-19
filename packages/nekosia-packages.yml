@@ -1,0 +1,98 @@
+generated: '2026-08-19'
+method: searched
+source: >-
+  https://nekosia.cat/documentation?page=wrappers (the provider's own "Libraries and Wrappers" page,
+  mirrored at https://raw.githubusercontent.com/Nekosia-API/documentation/main/wrappers.md) plus
+  registry metadata from https://registry.npmjs.org/nekosia.js and the GitHub API.
+checked: '2026-08-19'
+summary:
+  first_party_sdk_count: 1
+  third_party_package_count: 1
+  languages: [javascript]
+  note: >-
+    Nekosia publishes exactly one official client library — nekosia.js on npm, under its own
+    GitHub organization. Its own wrappers page strikes through Python, C# "and others" as
+    unreleased, so JavaScript/Node.js is the whole first-party SDK surface. One community
+    wrapper (Swift) is listed BY the provider on that same page but is not published by them.
+packages:
+  - language: javascript
+    registry: npm
+    name: nekosia.js
+    url: https://www.npmjs.com/package/nekosia.js
+    install: npm install nekosia.js
+    official: true
+    version: 0.2.10
+    published: '2026-06-28'
+    release_count: 17
+    license: MIT
+    repository: https://github.com/Nekosia-API/nekosia.js
+    homepage: https://nekosia.cat
+    types: true
+    types_note: Ships TypeScript declarations at types/index.d.ts and a generated types/tags.ts tag union.
+    description: >-
+      Official Node.js wrapper for the Nekosia API. Exposes NekosiaAPI.fetchCategoryImages(category, opts),
+      NekosiaAPI.fetchImages({ tags, blacklist, session, count, ... }), a tags fetcher and a version helper,
+      wrapping GET /images/:category, GET /getImageById/:id and GET /tags.
+    source: https://registry.npmjs.org/nekosia.js
+    currency_note: >-
+      Latest release 0.2.10 on 2026-06-28, ~2 months before this check, against an API whose last
+      recorded API-labelled change was 2026-04-02 (v1.2.6-rc.1). The SDK is current with the API,
+      not behind it.
+third_party_packages:
+  - language: swift
+    registry: github
+    name: NekosiaAPI
+    url: https://github.com/jezreelbarbosa/NekosiaAPI
+    install: 'Swift Package Manager: .package(url: "https://github.com/jezreelbarbosa/NekosiaAPI.git", from: "0.1.4")'
+    official: false
+    version: 0.1.4
+    published: null
+    published_note: >-
+      Distributed as a Swift package straight from the git repo; there is no Swift package registry
+      metadata endpoint to date the release. 0.1.4 is the newest git tag; the repository was last
+      pushed 2025-11-06. Recorded as null rather than guessed from the push date.
+    license: MIT
+    repository: https://github.com/jezreelbarbosa/NekosiaAPI
+    description: >-
+      Community Swift wrapper for the Nekosia API, listed by Nekosia on its own wrappers page under
+      "Community Libraries". Not maintained by Nekosia.
+    source: https://nekosia.cat/documentation?page=wrappers
+registries_checked:
+  - registry: npm
+    result: nekosia.js (official, 0.2.10)
+    source: https://registry.npmjs.org/nekosia.js
+  - registry: pypi
+    result: none — the provider's own wrappers page lists Python as struck-through/unreleased
+  - registry: rubygems
+    result: none
+  - registry: crates.io
+    result: none
+  - registry: nuget
+    result: none — C# listed as struck-through/unreleased on the wrappers page
+  - registry: maven central
+    result: none
+  - registry: pkg.go.dev
+    result: none
+github_organization:
+  url: https://github.com/Nekosia-API
+  found: true
+  public_repositories:
+    - name: documentation
+      url: https://github.com/Nekosia-API/documentation
+      note: >-
+        The complete API documentation as markdown — the single most useful machine-readable asset
+        this provider publishes, and the source for most artifacts in this repo.
+      pushed: '2026-08-03'
+    - name: nekosia.js
+      url: https://github.com/Nekosia-API/nekosia.js
+      pushed: '2026-08-06'
+    - name: Anime-Ayomi-Bot
+      url: https://github.com/Nekosia-API/Anime-Ayomi-Bot
+      note: Discord bot built on the API — a first-party reference consumer, not an SDK.
+      pushed: '2026-07-25'
+    - name: nekosia-api-cdn-test
+      url: https://github.com/Nekosia-API/nekosia-api-cdn-test
+      pushed: '2025-07-31'
+  note: >-
+    The API server and website themselves are NOT open source — the provider states this explicitly
+    under "Open Source" in the introduction document.

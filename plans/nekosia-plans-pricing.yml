@@ -1,0 +1,55 @@
+generated: '2026-08-19'
+method: searched
+source: >-
+  https://nekosia.cat/documentation?page=introduction (the "Free Usage" section) and
+  https://nekosia.cat/documentation?page=tos (§2 "Commercial Use"), read verbatim from the
+  provider's own documentation repository at https://github.com/Nekosia-API/documentation.
+checked: '2026-08-19'
+summary: >-
+  Nekosia publishes NO plans, NO tiers and NO prices, and this is a deliberate product position
+  rather than a gap. The API is free, requires no registration and issues no API key, so there is
+  nothing to price and no account to attach a plan to. There is no pricing page anywhere on the
+  site and none is linked from the navigation. What exists instead of pricing is a licensing gate:
+  standard public use is free, and COMMERCIAL use is prohibited without prior written consent from
+  the administrator, obtained by contacting them directly.
+plan_count: 0
+prices_published: false
+currency: null
+billing_period: null
+public_signup_pricing: false
+pricing_page: null
+pricing_page_note: >-
+  No /pricing, /plans or equivalent path exists. The commercial terms live inside the Terms of
+  Service document, not on a pricing page.
+plans: []
+access_model:
+  pricing: free
+  onboarding: none
+  api_key_required: false
+  registration_required: false
+  note: >-
+    Access is keyless and anonymous. The only enforcement surface is the per-IP rate limit
+    (see rate-limits/nekosia-rate-limits.yml) and the terms of service.
+commercial_use:
+  permitted_by_default: false
+  mechanism: prior written consent from the administrator, requested by email
+  contact: support@nekosia.cat
+  quote: >-
+    "YOU MAY NOT use the Nekosia API for commercial purposes without prior written consent.
+    Commercial use includes any activity that generates income or supports commercial activities,
+    including but not limited to, using the API in products or Services that are sold or licensed."
+  consequence: >-
+    Commercial use without consent may result in immediate blocking of API access and potential
+    legal consequences.
+  source: https://nekosia.cat/documentation?page=tos#api-commercial-use
+  agent_note: >-
+    This is the material commercial fact about this provider and it is easy to miss because the API
+    is free and keyless. An agent or product that monetises anything built on Nekosia needs written
+    permission first; there is no self-serve commercial tier to buy instead.
+funding:
+  model: donations
+  channel: https://ko-fi.com/nekosia
+  note: >-
+    A Ko-fi link is published in the site footer and in the GitHub repositories' FUNDING.yml. This
+    is voluntary support for the project, not a paid plan, and it buys no additional API capacity.
+  source: https://nekosia.cat/

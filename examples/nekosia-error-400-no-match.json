@@ -1,0 +1,1 @@
+{"success":false,"status":400,"message":"No images matching the specified criteria were found. See https://nekosia.cat/documentation?page=endpoints#tags-and-categories for more details.","example":"https://api.nekosia.cat/api/v1/images/catgirl"}

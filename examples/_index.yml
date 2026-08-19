@@ -1,0 +1,74 @@
+generated: '2026-08-19'
+method: probed
+source: >-
+  Live unauthenticated calls to https://api.nekosia.cat/api/v1/* on 2026-08-19. Every file in this
+  directory is a VERBATIM response body captured off the wire — nothing here is hand-written or
+  reshaped.
+checked: '2026-08-19'
+summary: >-
+  Worked request/response examples for all three documented operations plus two error shapes. The
+  provider publishes example requests and one sample response in its getting-started document but
+  ships no machine-readable spec and no examples file, so these were captured directly. They are
+  reproducible by anyone: the API is keyless, so each command below runs as-is with no credential.
+caveat: >-
+  /images/:category returns a RANDOM image, so re-running the command produces a different payload
+  with the same shape. The getImageById example is the only one that reproduces byte-for-byte,
+  because it addresses a fixed id.
+examples:
+  - file: nekosia-api-root-200.json
+    operation: service root / health
+    request: 'GET https://api.nekosia.cat/api/v1'
+    status: 200
+    note: >-
+      Doubles as an unauthenticated liveness check — returns message "Operational", a `release`
+      counter, the docs URL and a working example URL.
+  - file: nekosia-images-category-200.json
+    operation: GET /images/:category
+    request: 'GET https://api.nekosia.cat/api/v1/images/catgirl'
+    status: 200
+    note: >-
+      The core operation. One random safe-rated catgirl image with its full metadata envelope:
+      colours, original + compressed variants, dimensions, tags, source and artist attribution.
+  - file: nekosia-images-nothing-200.json
+    operation: GET /images/nothing (filter bypass)
+    request: 'GET https://api.nekosia.cat/api/v1/images/nothing?count=2&additionalTags=cat-ears'
+    status: 200
+    note: >-
+      The `nothing` category with the required additionalTags, and count=2 — the only captured
+      example showing a MULTI-image response, which is where the response shape differs from the
+      single-image case.
+  - file: nekosia-get-image-by-id-200.json
+    operation: GET /getImageById/:id
+    request: 'GET https://api.nekosia.cat/api/v1/getImageById/66a94e9e77291c597968abe7'
+    status: 200
+    note: The only deterministic, replayable example — the same id returns the same record.
+  - file: nekosia-tags-200.json
+    operation: GET /tags
+    request: 'GET https://api.nekosia.cat/api/v1/tags'
+    status: 200
+    size_bytes: 10441
+    note: >-
+      The complete controlled vocabulary in one document: `tags`, `anime` titles and `characters`
+      as three parallel arrays. This is what a client should validate filter inputs against.
+  - file: nekosia-error-400-no-match.json
+    operation: GET /images/:category (unknown category)
+    request: 'GET https://api.nekosia.cat/api/v1/images/catgirl-test'
+    status: 400
+    note: >-
+      The most common failure. Shows the error envelope and the `example` field the API returns to
+      point a caller back at a working request.
+  - file: nekosia-error-404-not-found.json
+    operation: unknown path
+    request: 'GET https://api.nekosia.cat/api/v1/nope'
+    status: 404
+    note: Shows the 404 envelope, which carries a `docs` field instead of `example`.
+example_count: 7
+provider_published_examples:
+  url: https://nekosia.cat/documentation?page=getting-started
+  note: >-
+    The provider does publish a full sample response plus curl (Linux and PowerShell) and Node.js
+    axios snippets in its getting-started document. Those are real, first-party examples; the files
+    here supplement them with live captures of the operations the docs do not illustrate.
+see_also:
+  data_model: data-model/nekosia-data-model.yml
+  errors: errors/nekosia-problem-types.yml

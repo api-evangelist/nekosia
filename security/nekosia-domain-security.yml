@@ -1,0 +1,23 @@
+generated: '2026-08-19'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: nekosia.cat
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov  6 05:45:01 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+- host: api.nekosia.cat
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov  6 05:45:01 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+domains:
+- domain: nekosia.cat
+  dnssec: true
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: reject

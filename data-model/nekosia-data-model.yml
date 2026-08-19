@@ -1,0 +1,126 @@
+generated: '2026-08-19'
+method: searched
+source: >-
+  The documented response structure at https://nekosia.cat/documentation?page=endpoints#response-structure
+  (verbatim at https://raw.githubusercontent.com/Nekosia-API/documentation/main/endpoints.md),
+  corroborated field-by-field against live responses from
+  https://api.nekosia.cat/api/v1/images/catgirl and /api/v1/tags captured 2026-08-19.
+checked: '2026-08-19'
+derivation_note: >-
+  There is no OpenAPI to derive this graph from — the provider publishes no machine-readable
+  contract. This model was reconstructed from the provider's own published response schema and then
+  validated against real responses, so every field below was observed on the wire, not inferred.
+summary: >-
+  A deliberately small model. One primary entity — the Image — plus a global tag vocabulary. There
+  are no accounts, no collections, no user-owned objects and no cross-entity references beyond the
+  tag join, because the API is read-only and anonymous. The interesting structure is all INSIDE the
+  Image: four value objects (colors, image, metadata, anime, source, attribution) that make one
+  response self-sufficient for rendering and for legal attribution without a second call.
+entities:
+  - name: Image
+    primary: true
+    id_field: id
+    id_format: 24-character lowercase hex (MongoDB ObjectId shape, e.g. 66bc6b7481a59a1cf2c79db5)
+    id_note: >-
+      The identifier is stable and addressable — GET /getImageById/:id retrieves the same record
+      later. It is the only durable handle in the whole API.
+    retrieved_by:
+      - GET /images/:category  (random selection, 1–20 per call)
+      - GET /getImageById/:id  (direct lookup)
+    fields:
+      - {name: id, type: string, description: 'Stable image identifier.'}
+      - {name: count, type: integer, description: 'How many images matched the query AFTER filters — not the number of images returned. The provider calls this out twice in the docs because it is routinely misread.'}
+      - {name: key, type: 'string|undefined', description: 'Optional; may be absent from the response entirely (documented as undefined since 2024-09-07).'}
+      - {name: category, type: string, description: 'The main category the image belongs to. Each image has exactly one.'}
+      - {name: tags, type: array<string>, description: 'Tag slugs. The join to the Tag vocabulary.'}
+      - {name: rating, type: enum, values: [safe, suggestive], description: 'Content classification. safe is the default and suggestive is never returned unless requested.'}
+    value_objects:
+      - name: colors
+        cardinality: has_one
+        fields:
+          - {name: main, type: string, format: hex, description: 'Dominant colour.'}
+          - {name: palette, type: array<string>, format: hex, description: 'Documented as 14 additional hex codes; 14 observed live.'}
+        purpose: >-
+          Lets a consumer theme a UI around the image without downloading and analysing it — one of
+          the provider's headline differentiators.
+      - name: image
+        cardinality: has_one
+        variants:
+          - {name: original, fields: [url, extension]}
+          - {name: compressed, fields: [url, extension]}
+        note: >-
+          Both URLs point at cdn.nekosia.cat, which carries its OWN rate limit (600 req / 5 min).
+          Rendering every API result costs budget on two hosts. See rate-limits/.
+      - name: metadata
+        cardinality: has_one
+        variants:
+          - {name: original, fields: [width, height, size, extension]}
+          - {name: compressed, fields: [width, height, size, extension]}
+        note: >-
+          Dimensions and byte size are known before fetching the file, so a client can choose the
+          variant and reserve layout without a HEAD request.
+      - name: anime
+        cardinality: has_one
+        fields:
+          - {name: title, type: 'string|null'}
+          - {name: character, type: 'string|null'}
+        volatility_warning: >-
+          Since 2026-06-01 an image can carry MULTIPLE character names in the database and the field
+          was migrated to `anime.characters` (array) internally. API v1 still returns `character` as
+          a string for backward compatibility; the provider states a future v2 may return a native
+          array. This is the one field in the model whose type is announced to change.
+      - name: source
+        cardinality: has_one
+        fields:
+          - {name: url, type: 'string|null', description: 'Artwork page on the original platform (Pixiv observed).'}
+          - {name: direct, type: 'string|null', description: 'Direct link to the original file on the source platform.'}
+      - name: attribution
+        cardinality: has_one
+        fields:
+          - {name: 'artist.username', type: 'string|null'}
+          - {name: 'artist.profile', type: 'string|null', description: 'Artist profile URL on the source platform.'}
+          - {name: copyright, type: 'string|null', description: 'Pre-formatted copyright line, e.g. "Copyright 2023 © by AutoINS. All Rights Reserved."'}
+        obligation: >-
+          Not decorative. The Terms of Service REQUIRE crediting the artist when this information is
+          present and you republish the image. These fields are the compliance surface of the API.
+  - name: Tag
+    primary: false
+    id_field: slug
+    retrieved_by:
+      - GET /tags
+    note: >-
+      A flat, global, controlled vocabulary — no hierarchy, no ids, no descriptions. /tags returns
+      three parallel arrays in one document: `tags`, `anime` (titles) and `characters`.
+    live_shape:
+      response_keys: [status, success, tags, anime, characters]
+      observed_size_bytes: 10441
+      observed: '2026-08-19'
+    dual_role: >-
+      A tag is also a CATEGORY when used in the :category path segment — the docs state categories
+      "are essentially tags, but with additional filters applied". The same string means "narrow the
+      search" in additionalTags and "search this bucket, safety-filtered" in the path. That overlap
+      is the single most confusing thing in this data model.
+  - name: Session
+    primary: false
+    persisted: server-side
+    id_field: 'the caller IP (session=ip) or the caller-supplied id (session=id)'
+    fields:
+      - {name: seen_images, type: 'array<Image.id>', description: 'Implicit — not returned to the client, only used to exclude repeats.'}
+    retention: 7 days
+    note: >-
+      A real server-side entity the consumer never sees. It holds which Image ids this caller has
+      already been shown, and resets automatically once a category is exhausted. Recorded here
+      because it is invisible state that changes what an identical request returns.
+    see: conventions/nekosia-conventions.yml
+relationships:
+  - {from: Image, to: Tag, type: has_many, via: tags, note: 'Free-form many-to-many join over the global vocabulary.'}
+  - {from: Image, to: Tag, type: belongs_to, via: category, note: 'Exactly one main category per image; the category is itself a tag with safety filters bound to it.'}
+  - {from: Session, to: Image, type: has_many, via: 'seen image ids (server-side only)', note: 'Drives de-duplication; never exposed in a response.'}
+entity_count: 3
+render: null
+render_note: No subway/ visual exists for this provider.
+absent_by_design:
+  - No user, account, api-key or organisation entity — the API is anonymous and keyless.
+  - No collection, list, favourite or upload entity — the API is read-only; uploads are admin-only via the website.
+  - No pagination cursor entity — result sets are returned whole or capped at 20.
+  - Booru user accounts, roles, votes and modification requests exist on the WEBSITE but are not exposed through the API.
