@@ -1,0 +1,47 @@
+name: Nekosia API
+description: >-
+  Nekosia is a free, keyless anime-image REST API serving cute anime 'neko' (catgirl) imagery and related metadata,
+  backed by the provider's own Booru. Responses are JSON with rich metadata including dominant colors, image variants,
+  dimensions, tags, ratings, and source attribution.
+url: https://nekosia-api.apievangelist.com/apis.yml
+created: '2026-08-19'
+modified: '2026-08-19'
+specificationVersion: '0.21'
+tags:
+  - anime
+  - neko
+  - api
+  - nekos
+  - neko api
+  - booru
+  - image
+  - media
+  - entertainment
+apis:
+  - name: Nekosia REST API
+    description: >-
+      Free keyless RESTful JSON API serving random anime/neko images across many categories with rich metadata, a tags
+      endpoint, session mechanism, and content ratings.
+    humanURL: https://nekosia.cat/documentation?page=introduction
+    baseURL: https://api.nekosia.cat/api/v1
+    tags:
+      - anime
+      - neko
+      - api
+      - nekos
+      - neko api
+      - booru
+      - image
+      - media
+      - entertainment
+    properties:
+      - type: Documentation
+        url: https://nekosia.cat/documentation?page=introduction
+maintainers:
+  - FN: Nekosia API
+    url: https://nekosia.cat/
+generated:
+  by: apis.io/add
+  model: claude-opus-4-8
+  confidence: 90
+  at: '2026-08-19T02:43:46.970Z'
