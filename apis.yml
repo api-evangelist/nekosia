@@ -13,6 +13,17 @@ created: '2026-08-19'
 modified: '2026-08-19'
 specificationVersion: '0.21'
 tags:
+- Anime
+- neko
+- nekos
+- neko api
+- booru
+- Image
+- Media
+- Entertainment
+- Free API
+- Open Access
+tags_raw:
 - anime
 - neko
 - api
@@ -32,6 +43,15 @@ apis:
   humanURL: https://nekosia.cat/documentation?page=introduction
   baseURL: https://api.nekosia.cat/api/v1
   tags:
+  - Anime
+  - neko
+  - nekos
+  - neko api
+  - booru
+  - Image
+  - Media
+  - Entertainment
+  tags_raw:
   - anime
   - neko
   - api
