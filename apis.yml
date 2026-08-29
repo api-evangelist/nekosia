@@ -7,6 +7,18 @@ description: Nekosia is a free, keyless anime-image REST API serving cute anime 
   and no account are required; rate limits are enforced per IP address and reported through standards-track
   RateLimit response headers. Standard public use is free, but commercial use requires prior written consent
   from the operator.
+deliveryModel:
+  model: unknown
+  open_source: unknown
+  commercial: true
+  callable_host: false
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - pricing
+  - repository-unlicensed
+  generated: '2026-08-28'
+  method: derived
 image: https://nekosia.cat/images/og-preview.gif
 url: https://raw.githubusercontent.com/api-evangelist/nekosia/refs/heads/main/apis.yml
 created: '2026-08-19'
