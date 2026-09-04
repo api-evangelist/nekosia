@@ -19,6 +19,20 @@ deliveryModel:
   - repository-unlicensed
   generated: '2026-08-28'
   method: derived
+accessModel:
+  pricing: unknown
+  onboarding: open
+  trial: false
+  try_now: false
+  public: true
+  label: Open access
+  confidence: medium
+  source:
+  - authentication
+  - rate-limits
+  - security
+  generated: '2026-09-02'
+  method: derived
 image: https://nekosia.cat/images/og-preview.gif
 url: https://raw.githubusercontent.com/api-evangelist/nekosia/refs/heads/main/apis.yml
 created: '2026-08-19'
